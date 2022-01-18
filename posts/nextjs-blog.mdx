@@ -1,0 +1,56 @@
+---
+title: Creating a Blog in NextJS
+tags:
+  - react
+  - next
+  - markdown
+date: 2022-01-17
+---
+
+Intro
+
+## Loading Files
+
+```js
+export const getPostFromSlug = (slug) => {
+  const postPath = path.join(POSTS_PATH, `${slug}.mdx`);
+  const source = fs.readFileSync(postPath);
+  const { content, data, excerpt } = matter(source, {
+    excerpt: (file) => {
+      file.excerpt = file.content.split("\n")[1];
+    },
+  });
+
+  // Setting frontmatter defaults
+  data.tags = data.tags || [];
+  data.date = (data.date || new Date()).toString();
+
+  return { content, excerpt, slug, ...data };
+};
+```
+
+## Markdown or MDX
+
+```js
+export const getStaticProps: GetStaticProps = async ({ params }) => {
+  const { slug } = params;
+  const { content, ...rest } = getPostFromSlug(slug as string);
+  const mdxSource = await serialize(content);
+
+  return { props: { post: { source: mdxSource, ...rest } } };
+};
+```
+
+```jsx
+<MDXRemote {...post.source} components={{ YouTube, Image }} />
+```
+
+## Code Highlighting
+
+## Frontmatter
+
+## Tag Page
+
+## Sitemap
+
+## Conclusion
