@@ -1,0 +1,196 @@
+---
+title: How to use Reduce in JavaScript
+tags:
+  - javascript
+  - fundamentals
+  - arrays
+  - reduce
+date: 2020-05-09
+excerpt: The reduce function of an array is one of the most versatile functions in JavaScript. With it you can accomplish a lot of the functions from array and math objects.
+---
+
+The [reduce](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce) function of an `Array` is one of the most versatile functions in JavaScript. With it you can accomplish a lot of the functions from the [Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array) and [Math](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math) objects. It's job is to start with an array, and reduce those elements into some other type of data... which sounds vague, but you could use it to convert from an array to an object, an array to another array, an array to a number or an array to a boolean. Understanding how it works opens up a world of possibilities.
+
+<YouTube id="NiLUGy1Mh4U" />
+
+A few of the Math/Array functions we will cover in this article:
+
+- [Math.min()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/min)
+- [Math.max()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/max)
+- [Array.length](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/length)
+- [Array.prototype.map()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)
+- [Array.prototype.find()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find)
+- [Array.prototype.every()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/every)
+- [Array.prototype.some()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some)
+- [Array.prototype.flat()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat)
+
+## Let's Recreate Reduce
+
+Before we see all of reduce's flexibility, let's understand how it works! Reduce's job is to iterate over each element of an array, calling a function (callback), passing both the current element, and what is called an "accumulator" value. The callback's job is to take the accumulator and the array element, and return the new version of that accmulator.
+
+<Image src="/images/reduce.jpg" width={1703} height={980} />
+
+This may mean taking an accumulator that is a number and returning its value + 1, or taking an accumulator which is an array and returning that array with an additional element on the end. It's up to you, depending what type of data you would like to _reduce_ your array to.
+
+We also need an _initial value_, which will be the first value our accumulator takes before the callback is ever called.
+
+```js
+function reduce(array, callback, initial) {
+  // start our accumulator off as the initial value
+  let acc = initial;
+  // iterate over each element in the array
+  for (let i = 0; i < array.length; i++) {
+    // pass the accumulator and current element to callback function
+    // override the accumulator with the callback's response
+    acc = callback(acc, array[i], i);
+  }
+  // return the final accumulator value
+  return acc;
+}
+
+result = reduce([1, 2, 3], (acc, num) => acc + num, 0);
+```
+
+## Counting Array Length
+
+The data we are starting with is an array of objects which represent people:
+
+```js
+const people = [
+  { id: "1", name: "Leigh", age: 35 },
+  { id: "2", name: "Jenny", age: 30 },
+  { id: "3", name: "Heather", age: 28 },
+];
+```
+
+Although `people.length` would be the more performant and better solution, we can count an array's length by using reduce. Our initial value is 0, and each iteration will add 1 to the previous accumulated value.
+
+```js
+result = people.reduce((acc, person) => acc + 1, 0);
+```
+
+## Sum Numbers
+
+We can sum numbers using reduce. Much like the length example above, we can start with 0, and instead of adding 1 upon each iteration, we can add the `person.age` property to our accumulated value.
+
+```js
+result = people.reduce((acc, person) => acc + person.age, 0);
+```
+
+## Mapping with Reduce
+
+Yup... you can map using reduce! In this case our initial value is an empty array, and upon each iteration we can return an array with its previous value, plus the newest value added to the end of our array.
+
+```js
+result = people.reduce((acc, person) => [...acc, person.name], []);
+```
+
+## Array to Object
+
+This is a technique I use all the time when I have an array of some object with an `id`, and I want to easily access these objects by their ID, rather than having to find them in an array each time. By having an object with each person's ID as the key, I can access them using the ID's value.
+
+```js
+result = people.reduce((acc, person) => {
+  return { ...acc, [person.id]: person };
+}, {});
+```
+
+## Find Max Value
+
+The `Math.max()` function can be immitated using reduce by checking if the current element's value is greater than the accumulator. If it is, that becomes (by returning the value) the new max value, otherwise the previous accumulator (current max value) is returned.
+
+```js
+result = people.reduce((acc, person) => {
+  if (acc === null || person.age > acc) return person.age;
+  return acc;
+}, null);
+```
+
+## Find Min Value
+
+The `Math.min()` function can be immitated using reduce by checking if the current element's value is less than the accumulator. If it is, that becomes (by returning the value) the new min value, otherwise the previous accumulator (current min value) is returned.
+
+```js
+result = people.reduce((acc, person) => {
+  if (acc === null || person.age < acc) return person.age;
+  return acc;
+}, null);
+```
+
+## Find Matching Element
+
+The reduce callback function when immitating `Array.prototype.find()` contains three possibilities:
+
+- The accumulator is not null, meaning we have already found the value, so let's return it.
+- The current array element meets our criteria, so let's return it.
+- By returning null we tell the next iteration that the value has not yet been found.
+
+```js
+result = people.reduce((acc, person) => {
+  if (acc !== null) return acc;
+  if (person.name === "Leigh") return person;
+  return null;
+}, null);
+```
+
+## Check If Every Value Matches
+
+When checking if every value matches a specific criteria, we will start with the assumption that every value will match... very optimistic!! If the accumulator becomes false, our callback will continue to return false, since every value must match, and otherwise will return `true` or `false` for the current element.
+
+```js
+result = people.reduce((acc, person) => {
+  if (!acc) return false;
+  return person.age > 18;
+}, true);
+```
+
+## Check If Some Value Matches
+
+Checking if some value matches a condition in our array involves a bit of pessimism. We'll start off with the assumption of `false`, and our callback function will return true as soon as the accumulator is true for the first time, and otherwise will return `true` or `false` on the current element.
+
+```js
+result = people.reduce((acc, person) => {
+  if (acc) return true;
+  return person.age > 18;
+}, false);
+```
+
+## Group and Count Occurrences
+
+As we've seen in the "Array to Object" example above, we can convert an array to an object, but this time we are looking to count the occurrences for a given key, in this case the `status`. Our return value will take the existing accumulated object, adding 1 for the current key's value (or initializing it to 0 if this is the first occurrence).
+
+```js
+const orders = [
+  { id: "1", status: "pending" },
+  { id: "2", status: "pending" },
+  { id: "3", status: "cancelled" },
+  { id: "4", status: "shipped" },
+];
+
+result = orders.reduce((acc, order) => {
+  return { ...acc, [order.status]: (acc[order.status] || 0) + 1 };
+}, {});
+```
+
+## Flatten Nested Arrays
+
+In this last example we will start with an array of nested arrays, and reduce it into a flattened array of values. Because we will need to recursively reduce (flatten) arrays, we'll need to give our callback function a name (so it can be called within itself).
+
+If the current element is an `Array`, it means we must reduce it until we arrive at at an element that can be appended to the end of the array we are producing. The _initial_ value of our inner reduce call is the _current_ accumulator value.
+
+```js
+const folders = [
+  "index.js",
+  ["flatten.js", "map.js"],
+  ["any.js", ["all.js", "count.js"]],
+];
+
+function flatten(acc, element) {
+  if (Array.isArray(element)) {
+    return element.reduce(flatten, acc);
+  }
+  return [...acc, element];
+}
+
+result = folders.reduce(flatten, []);
+```

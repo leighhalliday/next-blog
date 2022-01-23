@@ -1,6 +1,6 @@
 import Link from "next/link";
-import type { PostMeta } from "../api";
-import styles from "../../styles/Articles.module.css";
+import type { PostMeta } from "@/src/api";
+import styles from "@/styles/Articles.module.css";
 
 export default function ArticleTile({ posts }: { posts: PostMeta[] }) {
   return (
@@ -13,9 +13,9 @@ export default function ArticleTile({ posts }: { posts: PostMeta[] }) {
           <p className={styles.excerpt}>{post.excerpt}</p>
           <p className={styles.tags}>
             {post.tags.map((tag) => (
-              <span key={tag}>
-                <Link href={`/tags/${tag}`}>{tag}</Link>{" "}
-              </span>
+              <Link key={tag} href={`/tags/${tag}`}>
+                {tag}
+              </Link>
             ))}
           </p>
         </li>

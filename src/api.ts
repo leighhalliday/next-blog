@@ -29,12 +29,7 @@ export const getAllPosts = (): Post[] => {
   return posts;
 };
 
-interface ExcerptBuffer extends Buffer {
-  excerpt: string;
-  content: string;
-}
-
-export interface Post {
+interface Post {
   content: string;
   meta: PostMeta;
 }
@@ -50,19 +45,15 @@ export interface PostMeta {
 export const getPostFromSlug = (slug: string): Post => {
   const postPath = path.join(POSTS_PATH, `${slug}.mdx`);
   const source = fs.readFileSync(postPath);
-  const { content, data, excerpt } = matter(source, {
-    excerpt: (input: ExcerptBuffer): string => {
-      return (input.excerpt = input.content.split("\n")[1]);
-    },
-  });
+  const { content, data } = matter(source);
 
   return {
     content,
     meta: {
-      excerpt,
       slug,
+      excerpt: data.excerpt,
       title: data.title ?? slug,
-      tags: data.tags || [],
+      tags: (data.tags || []).sort(),
       date: (data.date || new Date()).toString(),
     },
   };

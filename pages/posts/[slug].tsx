@@ -6,8 +6,8 @@ import { serialize } from "next-mdx-remote/serialize";
 import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeHighlight from "rehype-highlight";
-import { getPostFromSlug, getSlugs, PostMeta } from "../../src/api";
-import YouTube from "../../src/components/youTube";
+import { getPostFromSlug, getSlugs, PostMeta } from "@/src/api";
+import YouTube from "@/src/components/youTube";
 import "highlight.js/styles/atom-one-dark.css";
 
 interface MDXPost {
@@ -28,8 +28,8 @@ export default function PostPage({ post }: { post: MDXPost }) {
 }
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const { slug } = params;
-  const { content, meta } = getPostFromSlug(slug as string);
+  const { slug } = params as { slug: string };
+  const { content, meta } = getPostFromSlug(slug);
   const mdxSource = await serialize(content, {
     mdxOptions: {
       rehypePlugins: [

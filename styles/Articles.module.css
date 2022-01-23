@@ -15,9 +15,9 @@
 .tags {
   font-size: 0.75rem;
 }
-.tags span:after {
+.tags a:after {
   content: " . ";
 }
-.tags span:last-child:after {
+.tags a:last-child:after {
   content: "";
 }

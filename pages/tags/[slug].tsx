@@ -1,7 +1,7 @@
 import type { GetStaticProps, GetStaticPaths } from "next";
 import Head from "next/head";
-import { getAllPosts, PostMeta } from "../../src/api";
-import Articles from "../../src/components/articles";
+import { getAllPosts, PostMeta } from "@/src/api";
+import Articles from "@/src/components/articles";
 
 export default function TagPage({
   slug,
@@ -22,10 +22,8 @@ export default function TagPage({
 }
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const { slug } = params;
-  const posts = getAllPosts().filter((post) =>
-    post.meta.tags.includes(slug as string)
-  );
+  const { slug } = params as { slug: string };
+  const posts = getAllPosts().filter((post) => post.meta.tags.includes(slug));
 
   return {
     props: {
