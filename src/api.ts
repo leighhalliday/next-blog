@@ -8,24 +8,23 @@ const POSTS_PATH = path.join(process.cwd(), "posts");
 export const getSlugs = (): string[] => {
   const paths = sync(`${POSTS_PATH}/*.mdx`);
 
-  return paths.map((postPath) => {
-    const parts = postPath.split("/");
+  return paths.map((path) => {
+    const parts = path.split("/");
     const fileName = parts[parts.length - 1];
     const [slug, _ext] = fileName.split(".");
     return slug;
   });
 };
 
-export const getAllPosts = (): Post[] => {
+export const getAllPosts = () => {
   const posts = getSlugs()
     .map((slug) => getPostFromSlug(slug))
     .sort((a, b) => {
       if (a.meta.date > b.meta.date) return 1;
       if (a.meta.date < b.meta.date) return -1;
       return 0;
-    });
-  posts.reverse();
-
+    })
+    .reverse();
   return posts;
 };
 
@@ -51,10 +50,10 @@ export const getPostFromSlug = (slug: string): Post => {
     content,
     meta: {
       slug,
-      excerpt: data.excerpt,
+      excerpt: data.excerpt ?? "",
       title: data.title ?? slug,
-      tags: (data.tags || []).sort(),
-      date: (data.date || new Date()).toString(),
+      tags: (data.tags ?? []).sort(),
+      date: (data.date ?? new Date()).toString(),
     },
   };
 };
